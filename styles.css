@@ -1,3 +1,4 @@
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -10,12 +11,17 @@ body {
 
 h1 {
     color: #333;
+    font-size: 1.5em;
+    text-align: center;
 }
 
+/* Menú de navegación */
 nav {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
+    justify-content: center;
 }
 
 button {
@@ -25,25 +31,63 @@ button {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    font-size: 1em;
+    flex: 1 1 auto;
+    min-width: 120px;
 }
 
 button:hover {
     background-color: #0056b3;
 }
 
+/* Secciones de contenido */
 .page-section {
     display: none; /* Oculta todas las secciones por defecto */
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 15px;
-    width: 90%;
+    width: 100%;
     max-width: 500px;
     margin: 10px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.page-section input, 
+.page-section select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 1em;
 }
 
 #summary {
     margin-top: 10px;
     text-align: left;
+}
+
+/* Ajustes específicos para dispositivos móviles */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.2em;
+    }
+    
+    button {
+        font-size: 0.9em;
+        padding: 8px;
+        min-width: 100px;
+    }
+
+    .page-section {
+        padding: 10px;
+    }
+    
+    .page-section input, 
+    .page-section select {
+        font-size: 0.9em;
+    }
 }
