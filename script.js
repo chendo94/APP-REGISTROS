@@ -1,12 +1,5 @@
-// Inicializa las listas desde localStorage o con listas vacías si no hay datos guardados
-const members = JSON.parse(localStorage.getItem('members')) || [];
-const records = JSON.parse(localStorage.getItem('records')) || [];
-
-// Función para actualizar localStorage
-function updateLocalStorage() {
-    localStorage.setItem('members', JSON.stringify(members));
-    localStorage.setItem('records', JSON.stringify(records));
-}
+const members = [];
+const records = [];
 
 // Muestra la sección seleccionada y oculta las demás
 function showSection(sectionId) {
@@ -18,18 +11,23 @@ function showSection(sectionId) {
 
 // Función para agregar un miembro al grupo
 function addMember() {
-    const name = document.getElementById('memberName').value;
-    const surname = document.getElementById('memberSurname').value;
+    const name = document.getElementById('memberName').value.trim();
+    const surname = document.getElementById('memberSurname').value.trim();
     const rate = parseFloat(document.getElementById('memberRate').value);
 
-    if (name && surname && rate) {
-        const member = { id: members.length + 1, name, surname, rate };
-        members.push(member);
-        updateMemberSelects();
-        updateLocalStorage(); // Actualiza el almacenamiento
-        alert('Miembro agregado exitosamente');
+    if (name && surname && rate > 0) {
+        const existingMember = members.find(m => m.name === name && m.surname === surname);
+        if (!existingMember) {
+            const member = { id: members.length + 1, name, surname, rate };
+            members.push(member);
+            updateMemberSelects();
+            alert('Miembro agregado exitosamente');
+            clearInputs(['memberName', 'memberSurname', 'memberRate']);
+        } else {
+            alert("El miembro ya existe.");
+        }
     } else {
-        alert('Por favor, complete todos los campos.');
+        alert('Por favor, complete todos los campos con valores válidos.');
     }
 }
 
@@ -52,14 +50,14 @@ function registerHours() {
     const memberId = parseInt(document.getElementById('memberSelect').value);
     const hoursWorked = parseFloat(document.getElementById('hoursWorked').value);
     const workDate = document.getElementById('workDate').value;
-    const workLocation = document.getElementById('workLocation').value;
+    const workLocation = document.getElementById('workLocation').value.trim();
 
-    if (memberId && hoursWorked && workDate && workLocation) {
+    if (memberId && hoursWorked > 0 && workDate && workLocation) {
         records.push({ memberId, hoursWorked, workDate, workLocation, type: 'work' });
-        updateLocalStorage(); // Actualiza el almacenamiento
         alert('Horas registradas exitosamente');
+        clearInputs(['hoursWorked', 'workDate', 'workLocation']);
     } else {
-        alert('Por favor, complete todos los campos.');
+        alert('Por favor, complete todos los campos con valores válidos.');
     }
 }
 
@@ -68,12 +66,12 @@ function registerAdvance() {
     const memberId = parseInt(document.getElementById('advanceMemberSelect').value);
     const advanceAmount = parseFloat(document.getElementById('advanceAmount').value);
 
-    if (memberId && advanceAmount) {
+    if (memberId && advanceAmount > 0) {
         records.push({ memberId, advanceAmount, type: 'advance' });
-        updateLocalStorage(); // Actualiza el almacenamiento
         alert('Anticipo registrado exitosamente');
+        clearInputs(['advanceAmount']);
     } else {
-        alert('Por favor, complete todos los campos.');
+        alert('Por favor, complete todos los campos con valores válidos.');
     }
 }
 
@@ -81,6 +79,10 @@ function registerAdvance() {
 function generateWeeklySummary() {
     const summaryDiv = document.getElementById('summary');
     summaryDiv.innerHTML = '';
+    if (records.length === 0) {
+        summaryDiv.innerHTML = '<p>No hay registros disponibles.</p>';
+        return;
+    }
     members.forEach(member => {
         const memberRecords = records.filter(record => record.memberId === member.id);
         const totalHours = memberRecords.filter(record => record.type === 'work').reduce((sum, record) => sum + record.hoursWorked, 0);
@@ -99,20 +101,18 @@ function generateWeeklySummary() {
     });
 }
 
-// Muestra la sección de agregar miembro por defecto
-showSection('add-member-section');
-updateMemberSelects();  // Cargar datos de los selects al inicio
-
-// Función para restablecer todos los registros
+// Función para restablecer solo los registros, sin borrar los miembros
 function resetAllRecords() {
-    // Confirma antes de eliminar todos los registros y miembros
     if (confirm("¿Estás seguro de que deseas restablecer todos los registros y empezar de nuevo?")) {
-        members.length = 0;  // Vacía la lista de miembros
-        records.length = 0;  // Vacía la lista de registros
-        updateLocalStorage(); // Borra los datos del almacenamiento local
-        updateMemberSelects();  // Actualiza la interfaz
-        document.getElementById('summary').innerHTML = '';  // Limpia el resumen semanal
-        alert("Todos los registros han sido restablecidos.");
+        records.length = 0; // Limpia solo los registros de horas y anticipos
+        document.getElementById('summary').innerHTML = ''; // Borra el resumen semanal
+        alert("Los registros de horas y anticipos han sido restablecidos.");
         showSection('add-member-section');
     }
-}  
+}
+
+
+// Función para limpiar campos de entrada
+function clearInputs(inputIds) {
+    inputIds.forEach(id => document.getElementById(id).value = '');
+}
